@@ -15,6 +15,15 @@ input {
   outline: none;
 }
 
+input:disabled {
+  background-color: gray;
+  color: red;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
 button {
   margin-top: 20px;
   padding: 10px;
@@ -32,8 +41,16 @@ button:hover {
   background-color: #45a049;
 }
 
-p {
-  color: green;
+.valid,
+.invalid {
   font-weight: bold;
   margin-top: 10px;
+}
+
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
 }
