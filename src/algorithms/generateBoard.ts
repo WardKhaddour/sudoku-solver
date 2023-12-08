@@ -13,26 +13,42 @@ function isValid(
   row: number,
   col: number,
   num: number,
+  boardSize: number,
 ): boolean {
-  for (let i = 0; i < 9; i++) {
-    const m = 3 * Math.floor(row / 3) + Math.floor(i / 3)
-    const n = 3 * Math.floor(col / 3) + (i % 3)
-    if (board[row][i] === num || board[i][col] === num || board[m][n] === num) {
+  for (let i = 0; i < boardSize; i++) {
+    if (board[row][i] === num || board[i][col] === num) {
       return false
     }
   }
+
+  const subgridSize = Math.sqrt(boardSize)
+  const startRow = Math.floor(row / subgridSize) * subgridSize
+  const startCol = Math.floor(col / subgridSize) * subgridSize
+
+  for (let i = 0; i < subgridSize; i++) {
+    for (let j = 0; j < subgridSize; j++) {
+      if (board[startRow + i][startCol + j] === num) {
+        return false
+      }
+    }
+  }
+
   return true
 }
-
-function fillBoard(board: SudokuBoard): boolean {
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
+function fillBoard(board: SudokuBoard, boardSize: number): boolean {
+  for (let row = 0; row < boardSize; row++) {
+    for (let col = 0; col < boardSize; col++) {
       if (board[row][col] === null) {
-        const numbers = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        const numbers = shuffle(
+          Array.from({ length: boardSize }, (_, i) => i + 1).slice(
+            0,
+            boardSize,
+          ),
+        )
         for (const num of numbers) {
-          if (isValid(board, row, col, num)) {
+          if (isValid(board, row, col, num, boardSize)) {
             board[row][col] = num
-            if (fillBoard(board)) {
+            if (fillBoard(board, boardSize)) {
               return true
             }
             board[row][col] = null
@@ -44,30 +60,34 @@ function fillBoard(board: SudokuBoard): boolean {
   }
   return true
 }
-
-function generateSudokuBoard(emptyCellsCount: number): SudokuBoard {
-  if (emptyCellsCount < 0 || emptyCellsCount > 81) {
-    throw new Error('Invalid number of empty cells. Must be between 0 and 81.')
+function generateSudokuBoard(
+  boardSize: number,
+  emptyCellsCount: number,
+): SudokuBoard {
+  if (boardSize < 1 || boardSize > 25) {
+    throw new Error('Invalid board size. Must be between 1 and 25.')
   }
 
-  const emptyBoard: SudokuBoard = Array.from({ length: 9 }, () =>
-    Array(9).fill(null),
+  const emptyBoard: SudokuBoard = Array.from({ length: boardSize }, () =>
+    Array(boardSize).fill(null),
   )
-  fillBoard(emptyBoard)
+  fillBoard(emptyBoard, boardSize)
 
   // Randomly remove cells to create empty spaces
   const flatBoard = emptyBoard.flat()
+
   const indicesToRemove = shuffle(
-    Array.from({ length: 81 }, (_, index) => index),
+    Array.from({ length: boardSize * boardSize }, (_, index) => index),
   ).slice(0, emptyCellsCount)
+
   indicesToRemove.forEach(index => {
     flatBoard[index] = null
   })
 
   // Convert the flat array back to a 2D array
   const resultBoard: SudokuBoard = []
-  while (flatBoard.length) {
-    resultBoard.push(flatBoard.splice(0, 9))
+  while (flatBoard.length > 0) {
+    resultBoard.push(flatBoard.splice(0, boardSize))
   }
 
   return resultBoard

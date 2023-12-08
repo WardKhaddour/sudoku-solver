@@ -1,10 +1,9 @@
-const isSudokuValid = (grid: (number | null)[][]) => {
-  // Check rows and columns
-  for (let i = 0; i < 9; ++i) {
+const isSudokuValid = (grid: (number | null)[][]): boolean => {
+  for (let i = 0; i < grid.length; ++i) {
     const rowSet = new Set()
     const colSet = new Set()
 
-    for (let j = 0; j < 9; ++j) {
+    for (let j = 0; j < grid[i].length; ++j) {
       // Check rows
       if (grid[i][j] !== null) {
         if (rowSet.has(grid[i][j])) {
@@ -23,13 +22,21 @@ const isSudokuValid = (grid: (number | null)[][]) => {
     }
   }
 
-  // Check 3x3 subgrids
-  for (let blockRow = 0; blockRow < 9; blockRow += 3) {
-    for (let blockCol = 0; blockCol < 9; blockCol += 3) {
+  // Check subgrids
+  for (
+    let blockRow = 0;
+    blockRow < grid.length;
+    blockRow += Math.sqrt(grid.length)
+  ) {
+    for (
+      let blockCol = 0;
+      blockCol < grid[0].length;
+      blockCol += Math.sqrt(grid.length)
+    ) {
       const subGridSet = new Set()
 
-      for (let i = blockRow; i < blockRow + 3; ++i) {
-        for (let j = blockCol; j < blockCol + 3; ++j) {
+      for (let i = blockRow; i < blockRow + Math.sqrt(grid.length); ++i) {
+        for (let j = blockCol; j < blockCol + Math.sqrt(grid.length); ++j) {
           if (grid[i][j] !== null) {
             if (subGridSet.has(grid[i][j])) {
               return false // Duplicate in the same subgrid
